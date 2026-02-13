@@ -1,43 +1,53 @@
 services:
-  database:
+  mysql:
     build: ./database
-    container_name: database
+    container_name: databaseContainer
     environment:
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: demo_app 
     ports:
       - '3306:3306'
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - examenInternal
   
 
   backend:
     build: ./backend
-    container_name: backend
+    container_name: backendContainer
+    restart: always
     ports:
       - '8080:80'
     depends_on:
       # No nombre de container_name 
       # Nombre del servicio
-      - database
+      - mysql
     environment:
       # = Nombre del Servicio de Base de Datos
-      - DB_HOST=database
+      - DB_HOST=mysql
       # = Nombre de Database
       - DB_NAME=demo_app
       # = Nombre de Usuario de Base de Datos
       - DB_USER=root
       # = Password de Usuario de Base de Datos
       - DB_PASS=root
+      - DB_PORT='3306'
+    networks:
+      - examenInternal
 
 
   frontend:
     build: ./frontend
-    container_name: frontend
+    container_name: frontendContainer
     ports:
       - '8000:80'
-    depends_on:
-      - backend
+
 
 
 volumes:
   mysql_data:
+
+
+networks:
+  examenInternal:
